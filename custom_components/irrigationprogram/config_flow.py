@@ -34,6 +34,13 @@ from .const import (
     ATTR_ZONE_ORDER,
     ATTR_ZONES,
     DOMAIN,
+    ATTR_RAIN_GAUGE,
+    ATTR_RAIN_THRESHOLD,
+    ATTR_ACCUMULATION_PERIOD,
+    ATTR_RAIN_ACCUMULATION,
+    CONST_LIGHT_RAIN,
+    CONST_HEAVY_RAIN,
+    CONST_RAIN_ACCUMULATED,
 )
 from .utils import bubble_sort
 
@@ -309,11 +316,22 @@ class IrrigationFlowHandler(config_entries.ConfigFlow):
                 vol.Optional("freq", description={"suggested_value":default_input.get("freq",False)}): cv.boolean,
                 vol.Optional("eco", description={"suggested_value":default_input.get("eco",False)}): cv.boolean,
                 vol.Optional(ATTR_PUMP, description={"suggested_value":default_input.get(ATTR_PUMP)}): sel.EntitySelector({"domain": ["switch","valve"],"exclude_entities":self._exclude}),
-                vol.Optional(ATTR_FLOW_SENSOR, description={"suggested_value":default_input.get(ATTR_FLOW_SENSOR)}): sel.EntitySelector({"domain": ["sensor"],"exclude_entities":self._exclude}),
-                vol.Optional(ATTR_WATER_ADJUST, description={"suggested_value":default_input.get(ATTR_WATER_ADJUST)}): sel.EntitySelector({"domain": ["sensor"],"exclude_entities":self._exclude}),
+                vol.Optional(ATTR_FLOW_SENSOR,
+                             description={"suggested_value":default_input.get(ATTR_FLOW_SENSOR)}): sel.EntitySelector({"domain": ["sensor"],"exclude_entities":self._exclude}),
+                vol.Optional(ATTR_WATER_ADJUST,
+                              description={"suggested_value":default_input.get(ATTR_WATER_ADJUST)}): sel.EntitySelector({"domain": ["sensor"],"exclude_entities":self._exclude}),
                 vol.Optional(ATTR_RAIN_SENSOR, description={"suggested_value":default_input.get(ATTR_RAIN_SENSOR)}): sel.EntitySelector({"domain": ["binary_sensor"],"exclude_entities":self._exclude}),
                 vol.Optional(ATTR_WATER_SOURCE, description={"suggested_value":default_input.get(ATTR_WATER_SOURCE)}): sel.EntitySelector({"domain": ["binary_sensor"],"exclude_entities":self._exclude}),
                 vol.Optional(ATTR_ZONE_ORDER, description={"suggested_value":default_input.get(ATTR_ZONE_ORDER,10)}): sel.NumberSelector({"min":1, "max":999, "mode":"box"}),
+                vol.Optional(ATTR_RAIN_GAUGE, 
+                    description={"suggested_value":default_input.get(ATTR_RAIN_GAUGE)}
+                ): sel.EntitySelector({"domain": ["sensor"],"exclude_entities":self._exclude}),
+                vol.Optional(ATTR_RAIN_THRESHOLD,
+                    description={"suggested_value":default_input.get(ATTR_RAIN_THRESHOLD, 5.0)}
+                ): sel.NumberSelector({"min": 0, "max": 100, "step": 0.1, "unit_of_measurement": "mm"}),
+                vol.Optional(ATTR_ACCUMULATION_PERIOD,
+                    description={"suggested_value":default_input.get(ATTR_ACCUMULATION_PERIOD, 24)}
+                ): sel.NumberSelector({"min": 1, "max": 72, "step": 1, "unit_of_measurement": "hours"}),
             }
         )
 

@@ -1,4 +1,3 @@
-
 import asyncio
 from datetime import timedelta
 import logging
@@ -60,7 +59,16 @@ from .const import (
     RAINBIRD_DURATION,
     RAINBIRD_TURN_ON,
     TIME_STR_FORMAT,
+    ATTR_RAIN_GAUGE,
+    ATTR_RAIN_THRESHOLD,
+    ATTR_ACCUMULATION_PERIOD,
+    ATTR_RAIN_ACCUMULATION,
+    ATTR_RAIN_INTENSITY,
+    CONST_LIGHT_RAIN,
+    CONST_HEAVY_RAIN,
+    CONST_RAIN_ACCUMULATED,
 )
+from .rain_monitor import RainMonitor
 
 VALID_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -99,6 +107,14 @@ class Zone(SwitchEntity, RestoreEntity):
         self._scheduled = False
         self._hist_flow_rate = 1
         self._water_adjust_prior = 1
+        self._rain_monitor = None
+        if self._zonedata.rain_gauge:
+            self._rain_monitor = RainMonitor(
+                hass,
+                self._zonedata.rain_gauge,
+                self._zonedata.rain_threshold,
+                self._zonedata.accumulation_period
+            )
 
     async def async_added_to_hass(self):
         last_state = await self.async_get_last_state()
@@ -590,7 +606,14 @@ class Zone(SwitchEntity, RestoreEntity):
     @property
     def extra_state_attributes(self):
         """Return entity specific state attributes."""
-        return self._extra_attrs
+        attrs = super().extra_state_attributes
+        
+        if self._rain_monitor:
+            attrs[ATTR_RAIN_INTENSITY] = f"{self._rain_monitor.intensity:.1f} mm/hr"
+            attrs[ATTR_RAIN_ACCUMULATION] = f"{self._rain_monitor.accumulation:.1f} mm"
+            attrs[ATTR_RAIN_THRESHOLD] = f"{self._rain_monitor._threshold:.1f} mm"
+        
+        return attrs
 
     async def async_turn_off(self, **kwargs):
         """Toggle the entity."""

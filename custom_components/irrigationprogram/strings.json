@@ -142,7 +142,10 @@
 					"water_adjustment": "Runtime adjustment sensor",
 					"rain_sensor": "Rain binary sensor",
 					"water_source_active": "Water source binary sensor",
-					"order": "Zone run order"
+					"order": "Zone run order",
+					"rain_gauge": "Rain gauge sensor (mm)",
+					"rain_threshold": "Rain accumulation threshold (mm)",
+					"accumulation_period": "Rain accumulation period (hours)"
 				}
 			},
 			"delete_zone": {
